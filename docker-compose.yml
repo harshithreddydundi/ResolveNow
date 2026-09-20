@@ -1,0 +1,181 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # PostgreSQL Database Engine
+  # ==========================================
+  postgres:
+    image: postgres:17-alpine
+    container_name: resolvenow-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: resolvenow_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d resolvenow_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Eureka Service Discovery Registry (:8761)
+  # ==========================================
+  eureka-server:
+    build:
+      context: ./backend/eureka-server
+    container_name: resolvenow-eureka
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8761
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Spring Cloud API Gateway (:8080)
+  # ==========================================
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+    container_name: resolvenow-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Auth Microservice (:8081)
+  # ==========================================
+  auth-service:
+    build:
+      context: ./backend/auth-service
+    container_name: resolvenow-auth
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/resolvenow_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Complaint Microservice (:8082)
+  # ==========================================
+  complaint-service:
+    build:
+      context: ./backend/complaint-service
+    container_name: resolvenow-complaint
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/resolvenow_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Assignment Microservice (:8083)
+  # ==========================================
+  assignment-service:
+    build:
+      context: ./backend/assignment-service
+    container_name: resolvenow-assignment
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/resolvenow_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Notification Microservice (:8084)
+  # ==========================================
+  notification-service:
+    build:
+      context: ./backend/notification-service
+    container_name: resolvenow-notification
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/resolvenow_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - resolvenow-net
+
+  # ==========================================
+  # Frontend Web Client (:3000)
+  # ==========================================
+  resolvenow-web:
+    build:
+      context: ./frontend/resolvenow-web
+    container_name: resolvenow-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - resolvenow-net
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  resolvenow-net:
+    driver: bridge
