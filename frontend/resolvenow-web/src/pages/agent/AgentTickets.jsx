@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Clock, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { complaintService } from '../../services/complaintService';
 import { Card } from '../../components/common/Card';
@@ -103,6 +103,7 @@ export const AgentTickets = () => {
                   <th className="pb-3 px-2">Customer</th>
                   <th className="pb-3 px-2">Priority</th>
                   <th className="pb-3 px-2">Status</th>
+                  <th className="pb-3 px-2">Target ETA</th>
                   <th className="pb-3 px-2">Assigned Date</th>
                   <th className="pb-3 px-2 text-right">Action</th>
                 </tr>
@@ -128,6 +129,21 @@ export const AgentTickets = () => {
                     </td>
                     <td className="py-3 px-2">
                       <StatusBadge status={t.status} />
+                    </td>
+                    <td className="py-3 px-2">
+                      {t.status === 'RESOLVED' || t.status === 'CLOSED' ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Resolved
+                        </span>
+                      ) : t.estimatedResolutionText ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-teal-600 dark:text-teal-400">
+                          <Clock className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate max-w-[130px]">{t.estimatedResolutionText}</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-[11px]">TBD</span>
+                      )}
                     </td>
                     <td className="py-3 px-2 text-slate-400">
                       {new Date(t.createdAt).toLocaleDateString()}

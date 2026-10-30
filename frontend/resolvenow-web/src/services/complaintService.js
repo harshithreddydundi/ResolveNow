@@ -36,6 +36,11 @@ export const complaintService = {
     return res.data?.data || [];
   },
 
+  updateComplaint: async (id, data) => {
+    const res = await api.put(`/complaints/${id}`, data);
+    return res.data?.data;
+  },
+
   updateStatus: async (id, status, remarks = '', updatedBy = '') => {
     const res = await api.patch(`/complaints/${id}/status`, { status, remarks, updatedBy });
     return res.data?.data;

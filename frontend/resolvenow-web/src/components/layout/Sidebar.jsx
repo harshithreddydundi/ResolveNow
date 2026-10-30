@@ -12,6 +12,7 @@ import {
   Settings,
   UserCheck,
   LifeBuoy,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -99,14 +100,24 @@ export const Sidebar = () => {
       </nav>
 
       {/* Footer Support Info */}
-      <div className="p-4 border-t border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <LifeBuoy className="w-4 h-4 text-indigo-500" />
-          <span>Need IT assistance?</span>
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+        <NavLink
+          to="/home"
+          className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition"
+        >
+          <Info className="w-4 h-4" />
+          <span>About Platform &amp; Team</span>
+        </NavLink>
+
+        <div>
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <LifeBuoy className="w-4 h-4 text-indigo-500" />
+            <span>Need IT assistance?</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mt-1">
+            Internal Ext: #4400 (24/7 Desk)
+          </p>
         </div>
-        <p className="text-[11px] text-slate-400 mt-1">
-          Internal Ext: #4400 (24/7 Desk)
-        </p>
       </div>
     </aside>
   );

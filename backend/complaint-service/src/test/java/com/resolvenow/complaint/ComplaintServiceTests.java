@@ -41,6 +41,8 @@ class ComplaintServiceTests {
         assertTrue(created.getTicketNumber().startsWith("RN-2026-"));
         assertEquals(Status.OPEN, created.getStatus());
         assertEquals("Technical Support", created.getDepartment());
+        assertNotNull(created.getEstimatedResolutionText());
+        assertNotNull(created.getEstimatedResolutionAt());
     }
 
     @Test

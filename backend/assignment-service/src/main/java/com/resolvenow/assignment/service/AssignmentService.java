@@ -312,4 +312,60 @@ public class AssignmentService {
                 .map(AssignmentDto::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    public AssignmentDto getAssignmentById(Long id) {
+        Assignment assignment = assignmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + id));
+        return AssignmentDto.fromEntity(assignment);
+    }
+
+    @Transactional
+    public AssignmentDto updateAssignment(Long id, UpdateAssignmentRequest req) {
+        Assignment assignment = assignmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with id: " + id));
+
+        if (req.getDepartment() != null && !req.getDepartment().isBlank()) {
+            assignment.setDepartment(req.getDepartment());
+        }
+        if (req.getAgentId() != null) {
+            assignment.setAgentId(req.getAgentId());
+        }
+        if (req.getAgentName() != null && !req.getAgentName().isBlank()) {
+            assignment.setAgentName(req.getAgentName());
+        }
+        if (req.getStatus() != null && !req.getStatus().isBlank()) {
+            assignment.setStatus(req.getStatus());
+        }
+        if (req.getRemarks() != null) {
+            assignment.setRemarks(req.getRemarks());
+        }
+        if (req.getAssignedBy() != null && !req.getAssignedBy().isBlank()) {
+            assignment.setAssignedBy(req.getAssignedBy());
+        }
+
+        Assignment updated = assignmentRepository.save(assignment);
+
+        // Sync with Complaint Service if assigned
+        if (updated.getComplaintId() != null) {
+            complaintClient.updateComplaintAssignment(
+                    updated.getComplaintId(),
+                    updated.getDepartment(),
+                    updated.getAgentId(),
+                    updated.getAgentName(),
+                    updated.getAssignedBy()
+            );
+        }
+
+        log.info("Updated assignment {} for complaint {}", id, updated.getComplaintId());
+        return AssignmentDto.fromEntity(updated);
+    }
+
+    @Transactional
+    public void deleteAssignment(Long id) {
+        if (!assignmentRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Assignment not found with id: " + id);
+        }
+        assignmentRepository.deleteById(id);
+        log.info("Deleted assignment {}", id);
+    }
 }

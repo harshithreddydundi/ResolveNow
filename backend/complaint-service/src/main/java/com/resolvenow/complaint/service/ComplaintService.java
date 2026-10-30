@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,10 +68,13 @@ public class ComplaintService {
                 department
         );
 
+        computeEstimatedResolution(complaint);
+
         Complaint saved = complaintRepository.save(complaint);
 
         // Record activity log
-        logActivity(saved.getId(), "CREATED", "Ticket logged and registered in ResolveNow",
+        String etaMsg = saved.getEstimatedResolutionText() != null ? " Target resolution: " + saved.getEstimatedResolutionText() + "." : "";
+        logActivity(saved.getId(), "CREATED", "Ticket logged and registered in ResolveNow." + etaMsg,
                 req.getCustomerName() != null ? req.getCustomerName() : "Customer");
 
         // Dispatch inter-service calls
@@ -80,7 +84,7 @@ public class ComplaintService {
                 saved.getId(),
                 "TICKET_CREATED",
                 "Ticket Created: " + saved.getTicketNumber(),
-                "Your issue '" + saved.getTitle() + "' has been logged and assigned to " + department
+                "Your issue '" + saved.getTitle() + "' has been logged and assigned to " + department + "." + etaMsg
         );
 
         ComplaintDto dto = ComplaintDto.fromEntity(saved);
@@ -176,6 +180,7 @@ public class ComplaintService {
         if (!complaintRepository.existsById(id)) {
             throw new ResourceNotFoundException("Complaint not found with id: " + id);
         }
+        activityRepository.deleteByComplaintId(id);
         complaintRepository.deleteById(id);
     }
 
@@ -191,13 +196,30 @@ public class ComplaintService {
 
         if (req.getStatus() == Status.RESOLVED) {
             complaint.setResolvedAt(LocalDateTime.now());
+            if (req.getRemarks() != null && !req.getRemarks().isBlank()) {
+                complaint.setResolutionNotes(req.getRemarks());
+                complaint.setResolvedBy(req.getUpdatedBy() != null ? req.getUpdatedBy() : "Staff");
+            }
         } else if (req.getStatus() == Status.CLOSED) {
             complaint.setClosedAt(LocalDateTime.now());
         }
 
+        if (req.getEstimatedResolutionText() != null && !req.getEstimatedResolutionText().isBlank()) {
+            complaint.setEstimatedResolutionText(req.getEstimatedResolutionText());
+        }
+        if (req.getEstimatedResolutionAt() != null) {
+            complaint.setEstimatedResolutionAt(req.getEstimatedResolutionAt());
+        } else if (complaint.getEstimatedResolutionText() == null) {
+            computeEstimatedResolution(complaint);
+        }
+
         Complaint updated = complaintRepository.save(complaint);
         String remarkStr = req.getRemarks() != null ? " (" + req.getRemarks() + ")" : "";
-        logActivity(id, "STATUS_CHANGED", "Status changed from " + oldStatus + " to " + req.getStatus() + remarkStr,
+        String etaNote = "";
+        if (req.getStatus() == Status.IN_PROGRESS && updated.getEstimatedResolutionText() != null) {
+            etaNote = " [Target Resolution: " + updated.getEstimatedResolutionText() + "]";
+        }
+        logActivity(id, "STATUS_CHANGED", "Status changed from " + oldStatus + " to " + req.getStatus() + etaNote + remarkStr,
                 req.getUpdatedBy() != null ? req.getUpdatedBy() : "Staff");
 
         // Notify customer
@@ -206,7 +228,7 @@ public class ComplaintService {
                 complaint.getId(),
                 "TICKET_STATUS_CHANGED",
                 "Status Updated: " + complaint.getTicketNumber(),
-                "Ticket status updated to " + req.getStatus() + remarkStr
+                "Ticket status updated to " + req.getStatus() + etaNote + remarkStr
         );
 
         ComplaintDto dto = ComplaintDto.fromEntity(updated);
@@ -311,6 +333,8 @@ public class ComplaintService {
 
         complaint.setStatus(Status.RESOLVED);
         complaint.setResolvedAt(LocalDateTime.now());
+        complaint.setResolutionNotes(remarks);
+        complaint.setResolvedBy(resolvedBy != null ? resolvedBy : "Agent");
 
         Complaint updated = complaintRepository.save(complaint);
         String remarkMsg = (remarks != null && !remarks.isBlank()) ? " Resolution notes: " + remarks : "";
@@ -455,6 +479,38 @@ public class ComplaintService {
 
         if (!allowed) {
             throw new BadRequestException("Invalid lifecycle transition from " + current + " to " + next);
+        }
+    }
+
+    public void computeEstimatedResolution(Complaint complaint) {
+        LocalDateTime created = complaint.getCreatedAt() != null ? complaint.getCreatedAt() : LocalDateTime.now();
+        Priority priority = complaint.getPriority() != null ? complaint.getPriority() : Priority.MEDIUM;
+
+        if (priority == Priority.CRITICAL || priority == Priority.HIGH) {
+            // High / Critical target: within 4-8 hours
+            if (created.getHour() < 18) {
+                LocalDateTime tonight = created.toLocalDate().atTime(21, 0);
+                complaint.setEstimatedResolutionAt(tonight);
+                complaint.setEstimatedResolutionText("Will resolve by tonight (~9:00 PM)");
+            } else {
+                LocalDateTime tonightLate = created.plusHours(4);
+                if (tonightLate.toLocalDate().isEqual(created.toLocalDate())) {
+                    complaint.setEstimatedResolutionAt(tonightLate);
+                    complaint.setEstimatedResolutionText("Will resolve by tonight (~" + tonightLate.format(DateTimeFormatter.ofPattern("h:mm a")) + ")");
+                } else {
+                    LocalDateTime tomorrowMorning = created.toLocalDate().plusDays(1).atTime(10, 0);
+                    complaint.setEstimatedResolutionAt(tomorrowMorning);
+                    complaint.setEstimatedResolutionText("Will resolve by tomorrow morning (~10:00 AM)");
+                }
+            }
+        } else if (priority == Priority.MEDIUM) {
+            LocalDateTime tomorrow = created.plusHours(24);
+            complaint.setEstimatedResolutionAt(tomorrow);
+            complaint.setEstimatedResolutionText("Will resolve by tomorrow (~" + tomorrow.format(DateTimeFormatter.ofPattern("h:mm a")) + ")");
+        } else {
+            LocalDateTime later = created.plusDays(3);
+            complaint.setEstimatedResolutionAt(later);
+            complaint.setEstimatedResolutionText("Will resolve within 2-3 business days");
         }
     }
 

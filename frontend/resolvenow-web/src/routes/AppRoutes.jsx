@@ -4,6 +4,9 @@ import { ProtectedRoute } from './ProtectedRoute';
 import { MainLayout } from '../components/layout/MainLayout';
 import { useAuth } from '../context/AuthContext';
 
+// Public Home / Landing Page
+import { HomePage } from '../pages/home/HomePage';
+
 // Auth Pages
 import { Login } from '../pages/auth/Login';
 import { Register } from '../pages/auth/Register';
@@ -51,6 +54,11 @@ const RoleHomeRedirect = () => {
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Public Pages */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/home" element={<HomePage />} />
+      <Route path="/about" element={<HomePage />} />
+
       {/* Public Authentication Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -58,7 +66,8 @@ export default function AppRoutes() {
 
       {/* Authenticated Application Layout */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/" element={<RoleHomeRedirect />} />
+        <Route path="/portal" element={<RoleHomeRedirect />} />
+        <Route path="/app" element={<RoleHomeRedirect />} />
 
         {/* Customer Portal */}
         <Route path="/dashboard" element={<CustomerDashboard />} />

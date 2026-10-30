@@ -10,6 +10,8 @@ public class UpdateStatusRequest {
 
     private String remarks;
     private String updatedBy;
+    private String estimatedResolutionText;
+    private java.time.LocalDateTime estimatedResolutionAt;
 
     public UpdateStatusRequest() {
     }
@@ -18,6 +20,13 @@ public class UpdateStatusRequest {
         this.status = status;
         this.remarks = remarks;
         this.updatedBy = updatedBy;
+    }
+
+    public UpdateStatusRequest(Status status, String remarks, String updatedBy, String estimatedResolutionText) {
+        this.status = status;
+        this.remarks = remarks;
+        this.updatedBy = updatedBy;
+        this.estimatedResolutionText = estimatedResolutionText;
     }
 
     public Status getStatus() {
@@ -42,5 +51,21 @@ public class UpdateStatusRequest {
 
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
+    }
+
+    public String getEstimatedResolutionText() {
+        return estimatedResolutionText;
+    }
+
+    public void setEstimatedResolutionText(String estimatedResolutionText) {
+        this.estimatedResolutionText = estimatedResolutionText;
+    }
+
+    public java.time.LocalDateTime getEstimatedResolutionAt() {
+        return estimatedResolutionAt;
+    }
+
+    public void setEstimatedResolutionAt(java.time.LocalDateTime estimatedResolutionAt) {
+        this.estimatedResolutionAt = estimatedResolutionAt;
     }
 }

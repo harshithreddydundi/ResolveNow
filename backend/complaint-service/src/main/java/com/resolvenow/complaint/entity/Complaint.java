@@ -68,6 +68,18 @@ public class Complaint {
     @Column(name = "closed_at")
     private LocalDateTime closedAt;
 
+    @Column(name = "estimated_resolution_at")
+    private LocalDateTime estimatedResolutionAt;
+
+    @Column(name = "estimated_resolution_text", length = 150)
+    private String estimatedResolutionText;
+
+    @Column(name = "resolution_notes", columnDefinition = "TEXT")
+    private String resolutionNotes;
+
+    @Column(name = "resolved_by", length = 100)
+    private String resolvedBy;
+
     public Complaint() {
     }
 
@@ -230,5 +242,37 @@ public class Complaint {
 
     public void setClosedAt(LocalDateTime closedAt) {
         this.closedAt = closedAt;
+    }
+
+    public LocalDateTime getEstimatedResolutionAt() {
+        return estimatedResolutionAt;
+    }
+
+    public void setEstimatedResolutionAt(LocalDateTime estimatedResolutionAt) {
+        this.estimatedResolutionAt = estimatedResolutionAt;
+    }
+
+    public String getEstimatedResolutionText() {
+        return estimatedResolutionText;
+    }
+
+    public void setEstimatedResolutionText(String estimatedResolutionText) {
+        this.estimatedResolutionText = estimatedResolutionText;
+    }
+
+    public String getResolutionNotes() {
+        return resolutionNotes;
+    }
+
+    public void setResolutionNotes(String resolutionNotes) {
+        this.resolutionNotes = resolutionNotes;
+    }
+
+    public String getResolvedBy() {
+        return resolvedBy;
+    }
+
+    public void setResolvedBy(String resolvedBy) {
+        this.resolvedBy = resolvedBy;
     }
 }

@@ -257,6 +257,17 @@ All external client traffic flows through the API Gateway on port `8080`:
 
 ---
 
-## 10. License & Academic Submission
+## 10. Engineering Team & Core Developers
+
+| Developer | Role & Key Specializations |
+| :--- | :--- |
+| **Sriram Kousik Sripathi** | Lead Developer &bull; Full Stack Microservices Architect (Spring Cloud Mesh, Eureka Discovery, Netty Gateway Ingress, JJWT Security, PostgreSQL 17 JPA Repositories) |
+| **Harshith Reddy Dundi** | Lead Developer &bull; Distributed Systems &amp; UI Architect (React 19 Pure JSX Frontend, Tailwind CSS, Framer Motion, Dual SSE Streaming Pipeline, Workload Balancing) |
+| **Nallapu Santosh Reddy** | Lead Developer &bull; Cloud Infrastructure &amp; QA Engineer (PostgreSQL 17 Schema Tuning, Assignment Service Workload Rebalancing, Notification Delivery &amp; Automated Testing) |
+
+---
+
+## 11. License & Academic Submission
 Developed for enterprise service desk automation and academic submission.
 All rights reserved © 2026 ResolveNow Team.
+

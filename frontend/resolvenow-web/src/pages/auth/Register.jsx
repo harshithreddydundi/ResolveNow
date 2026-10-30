@@ -17,6 +17,7 @@ import {
   EyeOff,
   ShieldCheck,
   ArrowRight,
+  ArrowLeft,
   Info
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -48,7 +49,7 @@ export const Register = () => {
   const roleOptions = [
     {
       id: 'CUSTOMER',
-      title: 'Customer / Employee',
+      title: 'Customer / User',
       icon: Users,
       badge: 'Standard Access',
       description: 'Report, monitor, and manage your service issues and grievances.',
@@ -57,11 +58,11 @@ export const Register = () => {
     },
     {
       id: 'AGENT',
-      title: 'Support Agent (Tech Agent)',
+      title: 'Support Agent',
       icon: Headphones,
-      badge: 'Unlimited Agents Supported',
+      badge: 'Tech Specialist',
       description: 'Investigate, diagnose, and resolve tickets assigned to your department.',
-      highlight: 'Create unlimited tech agents as needed across teams',
+      highlight: 'Shared departmental queue',
       color: 'teal'
     },
     {
@@ -70,8 +71,17 @@ export const Register = () => {
       icon: Briefcase,
       badge: '4 Core Departments',
       description: 'Oversee department queues, SLA dispatch, workload balancing, and escalations.',
-      highlight: 'Manage 1 of the 4 department queues',
+      highlight: 'Manage department team & queue',
       color: 'purple'
+    },
+    {
+      id: 'ADMIN',
+      title: 'System Administrator',
+      icon: ShieldCheck,
+      badge: 'Superuser Oversight',
+      description: 'Full enterprise control, microservice mesh monitoring, user registry, and analytics.',
+      highlight: 'Global administrative privileges',
+      color: 'rose'
     }
   ];
 
@@ -83,7 +93,7 @@ export const Register = () => {
     setFormData((prev) => ({
       ...prev,
       role: roleId,
-      department: roleId === 'CUSTOMER' ? '' : (prev.department || 'Technical Support')
+      department: roleId === 'CUSTOMER' ? '' : (roleId === 'ADMIN' ? 'Administration' : (prev.department || 'Technical Support'))
     }));
   };
 
@@ -99,7 +109,7 @@ export const Register = () => {
         password: formData.password,
         phone: formData.phone.trim(),
         role: formData.role,
-        department: formData.role === 'CUSTOMER' ? null : formData.department,
+        department: formData.role === 'CUSTOMER' ? null : (formData.role === 'ADMIN' ? 'Administration' : formData.department),
       };
 
       const user = await register(payload);
@@ -139,12 +149,25 @@ export const Register = () => {
       {/* Grid Pattern Overlay */}
       <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0 opacity-70 dark:opacity-40" />
 
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-2xl text-center">
+      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-4xl text-center">
+        <div className="flex items-center justify-between mb-4 px-2">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition bg-white/70 dark:bg-slate-800/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← Back to Home</span>
+          </Link>
+          <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800">
+            Enterprise RBAC System
+          </span>
+        </div>
+
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-primary-400 text-white shadow-xl shadow-indigo-500/25 mb-4"
+          className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-primary-400 text-white shadow-xl shadow-indigo-500/25 mb-3"
         >
           <Sparkles className="w-7 h-7" />
         </motion.div>
@@ -161,7 +184,7 @@ export const Register = () => {
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-2xl px-2 sm:px-0"
+        className="relative z-10 mt-6 sm:mx-auto sm:w-full sm:max-w-4xl px-2 sm:px-0"
       >
         <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-200/80 dark:border-slate-800/80">
           {error && (
@@ -179,11 +202,11 @@ export const Register = () => {
                   Which role are you creating account for?
                 </label>
                 <span className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400">
-                  Step 1 of 2: Select Access Tier
+                  Step 1 of 2: Select Access Tier (4 Roles Available)
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {roleOptions.map((opt) => {
                   const Icon = opt.icon;
                   const isSelected = formData.role === opt.id;

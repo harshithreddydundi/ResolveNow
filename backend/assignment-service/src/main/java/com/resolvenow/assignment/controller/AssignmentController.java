@@ -36,6 +36,27 @@ public class AssignmentController {
         return ResponseEntity.ok(ApiResponse.ok("Assignments retrieved", list));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get assignment by ID")
+    public ResponseEntity<ApiResponse<AssignmentDto>> getAssignmentById(@PathVariable Long id) {
+        AssignmentDto dto = assignmentService.getAssignmentById(id);
+        return ResponseEntity.ok(ApiResponse.ok("Assignment retrieved", dto));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update assignment details by ID")
+    public ResponseEntity<ApiResponse<AssignmentDto>> updateAssignment(@PathVariable Long id, @RequestBody UpdateAssignmentRequest request) {
+        AssignmentDto dto = assignmentService.updateAssignment(id, request);
+        return ResponseEntity.ok(ApiResponse.ok("Assignment updated successfully", dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete assignment record by ID")
+    public ResponseEntity<ApiResponse<Void>> deleteAssignment(@PathVariable Long id) {
+        assignmentService.deleteAssignment(id);
+        return ResponseEntity.ok(ApiResponse.ok("Assignment deleted successfully"));
+    }
+
     @GetMapping("/complaint/{complaintId}")
     @Operation(summary = "Get current assignment for a complaint")
     public ResponseEntity<ApiResponse<AssignmentDto>> getAssignmentByComplaint(@PathVariable Long complaintId) {

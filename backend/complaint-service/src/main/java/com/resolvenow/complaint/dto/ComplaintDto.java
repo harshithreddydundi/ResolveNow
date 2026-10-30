@@ -26,6 +26,10 @@ public class ComplaintDto {
     private LocalDateTime updatedAt;
     private LocalDateTime resolvedAt;
     private LocalDateTime closedAt;
+    private LocalDateTime estimatedResolutionAt;
+    private String estimatedResolutionText;
+    private String resolutionNotes;
+    private String resolvedBy;
 
     public ComplaintDto() {
     }
@@ -50,6 +54,10 @@ public class ComplaintDto {
         dto.setUpdatedAt(c.getUpdatedAt());
         dto.setResolvedAt(c.getResolvedAt());
         dto.setClosedAt(c.getClosedAt());
+        dto.setEstimatedResolutionAt(c.getEstimatedResolutionAt());
+        dto.setEstimatedResolutionText(c.getEstimatedResolutionText());
+        dto.setResolutionNotes(c.getResolutionNotes());
+        dto.setResolvedBy(c.getResolvedBy());
         return dto;
     }
 
@@ -187,5 +195,37 @@ public class ComplaintDto {
 
     public void setClosedAt(LocalDateTime closedAt) {
         this.closedAt = closedAt;
+    }
+
+    public LocalDateTime getEstimatedResolutionAt() {
+        return estimatedResolutionAt;
+    }
+
+    public void setEstimatedResolutionAt(LocalDateTime estimatedResolutionAt) {
+        this.estimatedResolutionAt = estimatedResolutionAt;
+    }
+
+    public String getEstimatedResolutionText() {
+        return estimatedResolutionText;
+    }
+
+    public void setEstimatedResolutionText(String estimatedResolutionText) {
+        this.estimatedResolutionText = estimatedResolutionText;
+    }
+
+    public String getResolutionNotes() {
+        return resolutionNotes;
+    }
+
+    public void setResolutionNotes(String resolutionNotes) {
+        this.resolutionNotes = resolutionNotes;
+    }
+
+    public String getResolvedBy() {
+        return resolvedBy;
+    }
+
+    public void setResolvedBy(String resolvedBy) {
+        this.resolvedBy = resolvedBy;
     }
 }

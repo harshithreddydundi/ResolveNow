@@ -10,4 +10,6 @@ import java.util.List;
 public interface ComplaintActivityRepository extends JpaRepository<ComplaintActivity, Long> {
 
     List<ComplaintActivity> findByComplaintIdOrderByTimestampDesc(Long complaintId);
+
+    void deleteByComplaintId(Long complaintId);
 }

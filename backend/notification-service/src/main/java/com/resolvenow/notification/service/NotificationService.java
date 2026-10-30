@@ -76,11 +76,44 @@ public class NotificationService {
         notificationRepository.markAllAsReadByUserId(userId);
     }
 
+    public NotificationDto getNotificationById(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: " + id));
+        return NotificationDto.fromEntity(notification);
+    }
+
+    @Transactional
+    public NotificationDto updateNotification(Long id, com.resolvenow.notification.dto.UpdateNotificationRequest req) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: " + id));
+
+        if (req.getTitle() != null && !req.getTitle().isBlank()) {
+            notification.setTitle(req.getTitle());
+        }
+        if (req.getMessage() != null && !req.getMessage().isBlank()) {
+            notification.setMessage(req.getMessage());
+        }
+        if (req.getIsRead() != null) {
+            notification.setIsRead(req.getIsRead());
+        }
+
+        Notification updated = notificationRepository.save(notification);
+        log.info("Updated notification {}", id);
+        return NotificationDto.fromEntity(updated);
+    }
+
     @Transactional
     public void deleteNotification(Long id) {
         if (!notificationRepository.existsById(id)) {
             throw new ResourceNotFoundException("Notification not found with id: " + id);
         }
         notificationRepository.deleteById(id);
+        log.info("Deleted notification {}", id);
+    }
+
+    @Transactional
+    public void clearAllNotifications(Long userId) {
+        notificationRepository.deleteByUserId(userId);
+        log.info("Cleared all notifications for user {}", userId);
     }
 }

@@ -26,8 +26,23 @@ export const notificationService = {
     return res.data;
   },
 
+  getNotificationById: async (id) => {
+    const res = await api.get(`/notifications/${id}`);
+    return res.data?.data;
+  },
+
+  updateNotification: async (id, data) => {
+    const res = await api.put(`/notifications/${id}`, data);
+    return res.data?.data;
+  },
+
   deleteNotification: async (id) => {
     const res = await api.delete(`/notifications/${id}`);
+    return res.data;
+  },
+
+  clearAllNotifications: async (userId) => {
+    const res = await api.delete(`/notifications/user/${userId}/clear-all`);
     return res.data;
   }
 };

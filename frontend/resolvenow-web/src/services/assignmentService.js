@@ -16,6 +16,21 @@ export const assignmentService = {
     return res.data?.data || [];
   },
 
+  getAssignmentById: async (id) => {
+    const res = await api.get(`/assignments/${id}`);
+    return res.data?.data;
+  },
+
+  updateAssignment: async (id, data) => {
+    const res = await api.put(`/assignments/${id}`, data);
+    return res.data?.data;
+  },
+
+  deleteAssignment: async (id) => {
+    const res = await api.delete(`/assignments/${id}`);
+    return res.data;
+  },
+
   getAssignmentByComplaint: async (complaintId) => {
     const res = await api.get(`/assignments/complaint/${complaintId}`);
     return res.data?.data;

@@ -8,6 +8,7 @@ import {
   ArrowRight,
   Sparkles,
   LifeBuoy,
+  Clock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { complaintService } from '../../services/complaintService';
@@ -132,6 +133,15 @@ export const CreateTicket = () => {
                   {createdTicket.status}
                 </span>
               </div>
+              {createdTicket.estimatedResolutionText && (
+                <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-slate-700/60 text-indigo-600 dark:text-indigo-400 font-bold">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    Target Resolution:
+                  </span>
+                  <span>{createdTicket.estimatedResolutionText}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">

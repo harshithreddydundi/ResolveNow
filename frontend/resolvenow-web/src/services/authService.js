@@ -11,6 +11,11 @@ export const authService = {
     return res.data?.data;
   },
 
+  createUser: async (userData) => {
+    const res = await api.post('/auth/users', userData);
+    return res.data?.data;
+  },
+
   getCurrentUser: async () => {
     const res = await api.get('/auth/me');
     return res.data?.data;

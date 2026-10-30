@@ -52,6 +52,14 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Current user retrieved", user));
     }
 
+    @PostMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create a new user (Admin only)")
+    public ResponseEntity<ApiResponse<UserDto>> createUser(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        return new ResponseEntity<>(ApiResponse.ok("User created successfully", response.getUser()), HttpStatus.CREATED);
+    }
+
     @GetMapping("/users")
     @PreAuthorize("hasAnyRole('ADMIN', 'DEPARTMENT_MANAGER')")
     @Operation(summary = "Get all users (Admin/Manager only)")

@@ -220,6 +220,16 @@ public class DataInitializer implements CommandLineRunner {
         c.setAssignedAgentName(agentName);
         c.setCreatedAt(created);
         c.setUpdatedAt(created.plusMinutes(15));
+        if (prio == Priority.CRITICAL || prio == Priority.HIGH) {
+            c.setEstimatedResolutionAt(created.toLocalDate().atTime(21, 0));
+            c.setEstimatedResolutionText("Will resolve by tonight (~9:00 PM)");
+        } else if (prio == Priority.MEDIUM) {
+            c.setEstimatedResolutionAt(created.plusHours(24));
+            c.setEstimatedResolutionText("Will resolve by tomorrow morning (~11:00 AM)");
+        } else {
+            c.setEstimatedResolutionAt(created.plusDays(3));
+            c.setEstimatedResolutionText("Will resolve within 2-3 business days");
+        }
         return c;
     }
 }

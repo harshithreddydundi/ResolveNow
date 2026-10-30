@@ -58,6 +58,20 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.ok("Unread count retrieved", Map.of("count", count)));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get notification by ID")
+    public ResponseEntity<ApiResponse<NotificationDto>> getNotificationById(@PathVariable Long id) {
+        NotificationDto dto = notificationService.getNotificationById(id);
+        return ResponseEntity.ok(ApiResponse.ok("Notification retrieved", dto));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update notification details by ID")
+    public ResponseEntity<ApiResponse<NotificationDto>> updateNotification(@PathVariable Long id, @RequestBody com.resolvenow.notification.dto.UpdateNotificationRequest request) {
+        NotificationDto dto = notificationService.updateNotification(id, request);
+        return ResponseEntity.ok(ApiResponse.ok("Notification updated successfully", dto));
+    }
+
     @PatchMapping("/{id}/read")
     @Operation(summary = "Mark a notification as read")
     public ResponseEntity<ApiResponse<NotificationDto>> markAsRead(@PathVariable Long id) {
@@ -77,6 +91,13 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<Void>> deleteNotification(@PathVariable Long id) {
         notificationService.deleteNotification(id);
         return ResponseEntity.ok(ApiResponse.ok("Notification deleted"));
+    }
+
+    @DeleteMapping("/user/{userId}/clear-all")
+    @Operation(summary = "Delete/Clear all notifications for a user")
+    public ResponseEntity<ApiResponse<Void>> clearAllNotifications(@PathVariable Long userId) {
+        notificationService.clearAllNotifications(userId);
+        return ResponseEntity.ok(ApiResponse.ok("All notifications cleared"));
     }
 
     @GetMapping(value = "/stream/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

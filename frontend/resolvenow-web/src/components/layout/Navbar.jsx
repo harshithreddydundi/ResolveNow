@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ChevronDown,
   Sparkles,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -220,6 +221,15 @@ export const Navbar = ({ onToggleSidebar }) => {
               >
                 <UserIcon className="w-4 h-4 text-slate-400" />
                 Profile Settings
+              </Link>
+
+              <Link
+                to="/home"
+                onClick={() => setShowUserMenu(false)}
+                className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition"
+              >
+                <Info className="w-4 h-4 text-indigo-500" />
+                About Platform &amp; Team
               </Link>
 
               <button
